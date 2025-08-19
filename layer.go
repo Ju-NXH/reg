@@ -7,7 +7,7 @@ import (
 	"io/ioutil"
 	"os"
 
-	"github.com/genuinetools/reg/registry"
+	"github.com/Ju-NXH/reg/registry"
 )
 
 const layerHelp = `Download a layer for a repository.`

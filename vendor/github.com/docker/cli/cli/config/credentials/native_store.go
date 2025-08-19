@@ -1,7 +1,7 @@
 package credentials
 
 import (
-	"github.com/docker/cli/cli/config/types"
+	"github.com/docker/cli/cli/config/types/registry"
 	"github.com/docker/docker-credential-helpers/client"
 	"github.com/docker/docker-credential-helpers/credentials"
 )
@@ -40,7 +40,7 @@ func (c *nativeStore) Erase(serverAddress string) error {
 }
 
 // Get retrieves credentials for a specific server from the native store.
-func (c *nativeStore) Get(serverAddress string) (types.AuthConfig, error) {
+func (c *nativeStore) Get(serverAddress string) (registry.AuthConfig, error) {
 	// load user email if it exist or an empty auth config.
 	auth, _ := c.fileStore.Get(serverAddress)
 
@@ -56,7 +56,7 @@ func (c *nativeStore) Get(serverAddress string) (types.AuthConfig, error) {
 }
 
 // GetAll retrieves all the credentials from the native store.
-func (c *nativeStore) GetAll() (map[string]types.AuthConfig, error) {
+func (c *nativeStore) GetAll() (map[string]registry.AuthConfig, error) {
 	auths, err := c.listCredentialsInStore()
 	if err != nil {
 		return nil, err
@@ -66,7 +66,7 @@ func (c *nativeStore) GetAll() (map[string]types.AuthConfig, error) {
 	// This call can be safely eliminated when emails are removed.
 	fileConfigs, _ := c.fileStore.GetAll()
 
-	authConfigs := make(map[string]types.AuthConfig)
+	authConfigs := make(map[string]registry.AuthConfig)
 	for registry := range auths {
 		creds, err := c.getCredentialsFromStore(registry)
 		if err != nil {
@@ -83,7 +83,7 @@ func (c *nativeStore) GetAll() (map[string]types.AuthConfig, error) {
 }
 
 // Store saves the given credentials in the file store.
-func (c *nativeStore) Store(authConfig types.AuthConfig) error {
+func (c *nativeStore) Store(authConfig registry.AuthConfig) error {
 	if err := c.storeCredentialsInStore(authConfig); err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (c *nativeStore) Store(authConfig types.AuthConfig) error {
 }
 
 // storeCredentialsInStore executes the command to store the credentials in the native store.
-func (c *nativeStore) storeCredentialsInStore(config types.AuthConfig) error {
+func (c *nativeStore) storeCredentialsInStore(config registry.AuthConfig) error {
 	creds := &credentials.Credentials{
 		ServerURL: config.ServerAddress,
 		Username:  config.Username,
@@ -112,8 +112,8 @@ func (c *nativeStore) storeCredentialsInStore(config types.AuthConfig) error {
 }
 
 // getCredentialsFromStore executes the command to get the credentials from the native store.
-func (c *nativeStore) getCredentialsFromStore(serverAddress string) (types.AuthConfig, error) {
-	var ret types.AuthConfig
+func (c *nativeStore) getCredentialsFromStore(serverAddress string) (registry.AuthConfig, error) {
+	var ret registry.AuthConfig
 
 	creds, err := client.Get(c.programFunc, serverAddress)
 	if err != nil {

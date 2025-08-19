@@ -11,7 +11,7 @@ import (
 	"strings"
 
 	"github.com/docker/cli/cli/config/credentials"
-	"github.com/docker/cli/cli/config/types"
+	"github.com/docker/cli/cli/config/types/registry"
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +24,7 @@ const (
 
 // ConfigFile ~/.docker/config.json file info
 type ConfigFile struct {
-	AuthConfigs          map[string]types.AuthConfig  `json:"auths"`
+	AuthConfigs          map[string]registry.AuthConfig  `json:"auths"`
 	HTTPHeaders          map[string]string            `json:"HttpHeaders,omitempty"`
 	PsFormat             string                       `json:"psFormat,omitempty"`
 	ImagesFormat         string                       `json:"imagesFormat,omitempty"`
@@ -69,7 +69,7 @@ type KubernetesConfig struct {
 // New initializes an empty configuration file for the given filename 'fn'
 func New(fn string) *ConfigFile {
 	return &ConfigFile{
-		AuthConfigs: make(map[string]types.AuthConfig),
+		AuthConfigs: make(map[string]registry.AuthConfig),
 		HTTPHeaders: make(map[string]string),
 		Filename:    fn,
 		Plugins:     make(map[string]map[string]string),
@@ -90,7 +90,7 @@ func (configFile *ConfigFile) LegacyLoadFromReader(configData io.Reader) error {
 		if len(arr) < 2 {
 			return errors.Errorf("The Auth config file is empty")
 		}
-		authConfig := types.AuthConfig{}
+		authConfig := registry.AuthConfig{}
 		origAuth := strings.Split(arr[0], " = ")
 		if len(origAuth) != 2 {
 			return errors.Errorf("Invalid Auth config file")
@@ -143,7 +143,7 @@ func (configFile *ConfigFile) ContainsAuth() bool {
 }
 
 // GetAuthConfigs returns the mapping of repo to auth configuration
-func (configFile *ConfigFile) GetAuthConfigs() map[string]types.AuthConfig {
+func (configFile *ConfigFile) GetAuthConfigs() map[string]registry.AuthConfig {
 	return configFile.AuthConfigs
 }
 
@@ -151,7 +151,7 @@ func (configFile *ConfigFile) GetAuthConfigs() map[string]types.AuthConfig {
 // the given writer
 func (configFile *ConfigFile) SaveToWriter(writer io.Writer) error {
 	// Encode sensitive data into a new/temp struct
-	tmpAuthConfigs := make(map[string]types.AuthConfig, len(configFile.AuthConfigs))
+	tmpAuthConfigs := make(map[string]registry.AuthConfig, len(configFile.AuthConfigs))
 	for k, authConfig := range configFile.AuthConfigs {
 		authCopy := authConfig
 		// encode and save the authstring, while blanking out the original fields
@@ -234,7 +234,7 @@ func (configFile *ConfigFile) ParseProxyConfig(host string, runOpts map[string]*
 }
 
 // encodeAuth creates a base64 encoded string to containing authorization information
-func encodeAuth(authConfig *types.AuthConfig) string {
+func encodeAuth(authConfig *registry.AuthConfig) string {
 	if authConfig.Username == "" && authConfig.Password == "" {
 		return ""
 	}
@@ -285,7 +285,7 @@ var newNativeStore = func(configFile *ConfigFile, helperSuffix string) credentia
 }
 
 // GetAuthConfig for a repository from the credential store
-func (configFile *ConfigFile) GetAuthConfig(registryHostname string) (types.AuthConfig, error) {
+func (configFile *ConfigFile) GetAuthConfig(registryHostname string) (registry.AuthConfig, error) {
 	return configFile.GetCredentialsStore(registryHostname).Get(registryHostname)
 }
 
@@ -303,9 +303,9 @@ func getConfiguredCredentialStore(c *ConfigFile, registryHostname string) string
 
 // GetAllCredentials returns all of the credentials stored in all of the
 // configured credential stores.
-func (configFile *ConfigFile) GetAllCredentials() (map[string]types.AuthConfig, error) {
-	auths := make(map[string]types.AuthConfig)
-	addAll := func(from map[string]types.AuthConfig) {
+func (configFile *ConfigFile) GetAllCredentials() (map[string]registry.AuthConfig, error) {
+	auths := make(map[string]registry.AuthConfig)
+	addAll := func(from map[string]registry.AuthConfig) {
 		for reg, ac := range from {
 			auths[reg] = ac
 		}

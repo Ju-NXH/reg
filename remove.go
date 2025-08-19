@@ -5,7 +5,7 @@ import (
 	"flag"
 	"fmt"
 
-	"github.com/genuinetools/reg/registry"
+	"github.com/Ju-NXH/reg/registry"
 )
 
 const removeHelp = `Delete a specific reference of a repository.`

@@ -24,6 +24,7 @@ import (
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
@@ -64,7 +65,7 @@ func StartRegistry(dcli *client.Client, config, username, password string) (stri
 	}
 
 	// start the container
-	if err := dcli.ContainerStart(context.Background(), r.ID, types.ContainerStartOptions{}); err != nil {
+	if err := dcli.ContainerStart(context.Background(), r.ID, container.StartOptions{}); err != nil {
 		return r.ID, "", err
 	}
 
@@ -119,7 +120,7 @@ func startClairDB(dcli *client.Client) (string, error) {
 	}
 
 	// start the container
-	return c.ID, dcli.ContainerStart(context.Background(), c.ID, types.ContainerStartOptions{})
+	return c.ID, dcli.ContainerStart(context.Background(), c.ID, container.StartOptions{})
 }
 
 // StartClair starts a new clair container and accompanying database.
@@ -186,7 +187,7 @@ func StartClair(dcli *client.Client) (string, string, error) {
 	}
 
 	// start the container
-	err = dcli.ContainerStart(context.Background(), c.ID, types.ContainerStartOptions{})
+	err = dcli.ContainerStart(context.Background(), c.ID, container.StartOptions{})
 
 	// wait for clair to start
 	// TODO: make this not a sleep
@@ -199,7 +200,7 @@ func StartClair(dcli *client.Client) (string, string, error) {
 func RemoveContainer(dcli *client.Client, ctrs ...string) (err error) {
 	for _, c := range ctrs {
 		err = dcli.ContainerRemove(context.Background(), c,
-			types.ContainerRemoveOptions{
+			container.RemoveOptions{
 				RemoveVolumes: true,
 				Force:         true,
 			})
@@ -233,7 +234,7 @@ func prefillRegistry(image string, dcli *client.Client, addr, username, password
 		return err
 	}
 
-	resp, err := dcli.ImagePush(context.Background(), addr+"/"+image, types.ImagePushOptions{
+	resp, err := dcli.ImagePush(context.Background(), addr+"/"+image, image.ImagePushOptions{
 		RegistryAuth: auth,
 	})
 	if err != nil {
@@ -256,7 +257,7 @@ func pullDockerImage(dcli *client.Client, image string) error {
 		return nil
 	}
 
-	resp, err := dcli.ImagePull(context.Background(), image, types.ImagePullOptions{})
+	resp, err := dcli.ImagePull(context.Background(), image, image.PullOptions{})
 	if err != nil {
 		return err
 	}
@@ -348,7 +349,7 @@ func waitForConn(addr, cert, key string) error {
 
 // constructRegistryAuth serializes the auth configuration as JSON base64 payload.
 func constructRegistryAuth(identity, secret string) (string, error) {
-	buf, err := json.Marshal(types.AuthConfig{Username: identity, Password: secret})
+	buf, err := json.Marshal(registry.AuthConfig{Username: identity, Password: secret})
 	if err != nil {
 		return "", err
 	}

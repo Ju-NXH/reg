@@ -4,7 +4,8 @@ import (
 	"context"
 	"os"
 
-	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/image"
+	"github.com/docker/docker/api/types/registry"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/jsonmessage"
 	"github.com/docker/docker/pkg/term"
@@ -36,7 +37,7 @@ func (r *RegistryHelper) RefillRegistry(image string) error {
 		return err
 	}
 
-	resp, err := r.dcli.ImagePush(context.Background(), r.addr+"/"+image, types.ImagePushOptions{
+	resp, err := r.dcli.ImagePush(context.Background(), r.addr+"/"+image, image.ImagePushOptions{
 		RegistryAuth: r.auth,
 	})
 	if err != nil {

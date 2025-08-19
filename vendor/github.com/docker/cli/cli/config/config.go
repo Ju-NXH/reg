@@ -9,7 +9,7 @@ import (
 
 	"github.com/docker/cli/cli/config/configfile"
 	"github.com/docker/cli/cli/config/credentials"
-	"github.com/docker/cli/cli/config/types"
+	"github.com/docker/cli/cli/config/types/registry"
 	"github.com/docker/docker/pkg/homedir"
 	"github.com/pkg/errors"
 )
@@ -60,7 +60,7 @@ func Path(p ...string) (string, error) {
 // a non-nested reader
 func LegacyLoadFromReader(configData io.Reader) (*configfile.ConfigFile, error) {
 	configFile := configfile.ConfigFile{
-		AuthConfigs: make(map[string]types.AuthConfig),
+		AuthConfigs: make(map[string]registry.AuthConfig),
 	}
 	err := configFile.LegacyLoadFromReader(configData)
 	return &configFile, err
@@ -70,7 +70,7 @@ func LegacyLoadFromReader(configData io.Reader) (*configfile.ConfigFile, error) 
 // a reader
 func LoadFromReader(configData io.Reader) (*configfile.ConfigFile, error) {
 	configFile := configfile.ConfigFile{
-		AuthConfigs: make(map[string]types.AuthConfig),
+		AuthConfigs: make(map[string]registry.AuthConfig),
 	}
 	err := configFile.LoadFromReader(configData)
 	return &configFile, err

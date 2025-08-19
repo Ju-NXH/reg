@@ -11,9 +11,9 @@ import (
 	"time"
 
 	"github.com/genuinetools/pkg/cli"
-	"github.com/genuinetools/reg/registry"
-	"github.com/genuinetools/reg/repoutils"
-	"github.com/genuinetools/reg/version"
+	"github.com/Ju-NXH/reg/registry"
+	"github.com/Ju-NXH/reg/repoutils"
+	"github.com/Ju-NXH/reg/version"
 	"github.com/sirupsen/logrus"
 )
 
